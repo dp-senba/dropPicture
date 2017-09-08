@@ -14,7 +14,8 @@
     <script src="js/camera.js"></script>
     <script src="js/api.js"></script>
     <script src="js/ncmb-2.1.3.min.js"></script>
-    <script>
+    <script src="js/dataStore.js"></script>
+    <script language="javascript">
         // Add your code here
 
         var StartTime;
@@ -22,33 +23,71 @@
         var IsStarting = false;
 
         // APIキーの設定とSDK初期化
-        var ncmb = new NCMB(getAppKey(), getClientKey());
+        var ncmb = new NCMB(getAppKey(),getClientKey());
 
         window.onload = function(){
             
+            //ゲームのステイタスを設定
+            SetGameState();
+            
             timer_tick();
             
+            //-----------------------------------------------------------
+            //  写真撮影ボタン押下
+            //-----------------------------------------------------------
             document.getElementById("btnCamera").onclick = function(){
                 takePicture(ncmb);
-            };
+            }
             
+            //-----------------------------------------------------------
+            //  スタートボタン押下
+            //-----------------------------------------------------------
             document.getElementById("btnStart").onclick = function(){
                 
-                var mintime = Number(document.getElementById("txtMinute").value);
+                var mintime = Number(document.getElementById("cmbMinute").value);
                 
                 StartTime = moment();
                 EndTime = moment().add(mintime, "minutes");
                 
                 document.getElementById("startTime").innerHTML = StartTime.format("LTS");
                 document.getElementById("endTime").innerHTML = EndTime.format("LTS");
+                document.getElementById("gameInfo").style.display = "block";
                 
                 IsStarting = true;
 
             };
+            
+            //-----------------------------------------------------------
+            //  ストップボタン押下
+            //-----------------------------------------------------------
             document.getElementById("btnStop").onclick = function(){
-                
+             
+                //全ての情報をクリアする
+                ResetGameData();
+              
                 IsStarting = false;
             };
+            
+            //-----------------------------------------------------------
+            //  参加するボタン押下
+            //-----------------------------------------------------------
+            document.getElementById("btnAppend").onclick = function(){
+                
+                //名前チェック
+                var txtMyName = document.getElementById("txtMyName");
+                if (txtMyName.value == "") {
+                    txtMyName.focus();
+                    return;
+                }
+                
+                //通知登録
+                
+                //参加登録
+                AppendMember(txtMyName.value);
+                
+                document.getElementById("btnAppend").style.display = "none";
+            };
+            
             document.getElementById("btnTest").onclick = function(){
                 try
                 {
@@ -87,6 +126,7 @@
         
         function timer_tick()
         {
+            
             if (IsStarting)
             {
                 setLimitTime();
@@ -112,6 +152,12 @@
 
     <h1>Welcome to Drop The Handkerchief!</h1>
     <h2 id="nowStatus">参加者受付中</h2>
+    
+    <div>
+        <span>あなたのお名前</span>
+        <span><input id="txtMyName" type="text" value="" placeholder="名前を入力" /></span>
+    </div>
+    
     <div id="info">
         <div>
             <span><input type="radio" name="member" id="chk1"></span>
@@ -138,7 +184,7 @@
     <div>
         <span>設定時間</span>
         <span>
-            <select>
+            <select id="cmbMinute">
                 <option value="1">1</option>
                 <option value="3">3</option>
                 <option value="5">5</option>
@@ -148,13 +194,16 @@
         <span>分</span>
     </div>
 
-    <a href="#" class="btn large" id="btnCamera" >写真撮影</a>
+    <a href="#" class="btn large" id="btnCamera">写真撮影</a>
+    <a href="#" class="btn large" id="btnAppend">参加する</a>
     <a href="#" class="btn large" id="btnStart" >スタート！</a>
-    <a href="#" class="btn large" id="btnStop" >ストップ</a>
-    <a href="#" class="btn large" id="btnTest" >Test</a>
+    <a href="#" class="btn large" id="btnStop"  >ストップ</a>
+    <a href="#" class="btn large" id="btnTest"  >Test</a>
 
-    <dl>
-    <dt>残り時間:</dt><dd id="timeLimit"><span id="timeLimit"></span></dd>
+    <dl id="gameInfo" style="display:none;">
+    <dt>開始時間:</dt><dd ><span id="startTime"></span></dd>
+    <dt>終了時間:</dt><dd ><span id="endTime"></span></dd>
+    <dt>残り時間:</dt><dd ><span id="timeLimit"></span></dd>
     </dl>
 
 </body>
