@@ -12,6 +12,7 @@
     <script src="components/moment.js"></script>
     <script src="js/master.js"></script>
     <script src="js/camera.js"></script>
+    <script src="js/api.js"></script>
     <script src="js/ncmb-2.1.3.min.js"></script>
     <script>
         // Add your code here
@@ -21,9 +22,7 @@
         var IsStarting = false;
 
         // APIキーの設定とSDK初期化
-        var app_key = "7c55072cff14d0d7f4e0414df3c42a74499e30911472977e6deb67db418b9a6b";
-        var client_key = "2e064df09fd00b231247b798c19f78e1e17fec2393c3d9cc9b4f928c2daba99d";
-        var ncmb = new NCMB(app_key, client_key);
+        var ncmb = new NCMB(getAppKey(), getClientKey());
 
         window.onload = function(){
             
