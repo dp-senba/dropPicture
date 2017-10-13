@@ -11,11 +11,22 @@ function CheckStatus()
         .fetchAll()
         .then(function(results){
             if (results.length > 0) {
-                IsStarting = true;
-                
                 var gInfo = results[0];
-                StartTime = moment(new Date('2017-10-10 ' + gInfo.get("StartDate")));
-                EndTime   = moment(new Date('2017-10-10 ' + gInfo.get("EndDate"  )));
+                //開始時刻のチェック
+                var eTime = moment(new Date('2017-10-10 ' + gInfo.get("EndDate"  )));
+                var diffSec = moment().diff(eTime, "seconds") * -1;
+                
+                if (diffSec > 0) {
+                    //現在ゲーム中
+                    IsStarting = true;
+                    
+                    StartTime = moment(new Date('2017-10-10 ' + gInfo.get("StartDate")));
+                    EndTime   = moment(new Date('2017-10-10 ' + gInfo.get("EndDate"  )));
+                }
+                else {
+                    //過去のゲームなので、消す
+                    deleteAll("GameInfo");
+                }
             }
             if (IsStarting == true) {
                 setStartFlg();
@@ -46,7 +57,8 @@ function InitFormByGameState()
     document.getElementById("btnStop").style.display = "none";
     document.getElementById("btnSend").style.display = "none";
     document.getElementById("btnAppend").style.display = "none";
-    
+
+    $("#txtMyName").attr("readonly", false);
     for(var i=1; i<=5; i++)
     {
         $("#txtName" + i).val("");
@@ -61,39 +73,43 @@ function InitFormByGameState()
                 var member = results[i];
                 var name = member.get("UserName");
                 document.getElementById("txtName" + (i+1)).value = name;
-            }
-        });
-    
-    
-    //ゲーム情報を取得
-    var GameInfo = ncmb.DataStore("GameInfo");
-    GameInfo
-        .fetchAll()
-        .then(function(results){
-            var cnt = results.length;
-            if (cnt == 0) 
-            {
-                //該当データがなければ、「参加する」が選択可能
-                document.getElementById("nowStatus").innerHTML = "参加者受付中～!(^^)!";
                 
-                //ボタン制御
-                if ($("#txtMyName").attr("readonly") != "readonly") {
-                    document.getElementById("btnAppend").style.display = "block";
+                if (MyId == (i+1)) {
+                    $("#txtMyName").attr("readonly", "true");
                 }
             }
-            else
-            {
-                //該当有の場合は、待ってもらう   
-                document.getElementById("nowStatus").innerHTML = "次のゲーム開始を待ってね★＾＾★";
-            }
-            if (IsParent == true) {
-                //親の場合は、写真撮影ができる
-                document.getElementById("btnCamera").style.display = "block";
-            }
-            
-        })
-        ;
     
+    
+            //ゲーム情報を取得
+            var GameInfo = ncmb.DataStore("GameInfo");
+            GameInfo
+                .fetchAll()
+                .then(function(results){
+                    var cnt = results.length;
+                    if (cnt == 0) 
+                    {
+                        //該当データがなければ、「参加する」が選択可能
+                        document.getElementById("nowStatus").innerHTML = "参加者受付中～!(^^)!";
+                        
+                        //ボタン制御
+                        if ($("#txtMyName").attr("readonly") != "readonly") {
+                            document.getElementById("btnAppend").style.display = "block";
+                        }
+                    }
+                    else
+                    {
+                        //該当有の場合は、待ってもらう   
+                        document.getElementById("nowStatus").innerHTML = "次のゲーム開始を待ってね★＾＾★";
+                    }
+                    if (IsParent == true) {
+                        //親の場合は、写真撮影ができる
+                        document.getElementById("btnCamera").style.display = "block";
+                    }
+                    
+                })
+                ;
+    
+        });
 }
 
 //----------------------------------
@@ -335,7 +351,6 @@ function ResetGameData()
     
     //FileInfo
     
-    
-    InitFormByGameState();
+    setTimeout("InitFormByGameState()", 500);
 }
 
