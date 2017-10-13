@@ -5,16 +5,36 @@
 //----------------------------------
 function CheckStatus()
 {
-    if (IsStarting == true) {
-        //ゲーム開始時
-        CheckBaba();
-    }
-    else {
-        //ゲーム参加待ち中
-        InitFormByGameState();
-    }
+    //ゲームが開始されているかチェック
+    var GameInfo = ncmb.DataStore("GameInfo");
+    GameInfo
+        .fetchAll()
+        .then(function(results){
+            if (results.length > 0) {
+                IsStarting = true;
+                
+                var gInfo = results[0];
+                StartTime = moment(new Date('2017-10-10 ' + gInfo.get("StartDate")));
+                EndTime   = moment(new Date('2017-10-10 ' + gInfo.get("EndDate"  )));
+            }
+            if (IsStarting == true) {
+                setStartFlg();
+                //ゲーム開始時
+                CheckBaba();
+                
+            }
+            else {
+                //ゲーム参加待ち中
+                InitFormByGameState();
+            }
+        });
 }
 
+
+function setStartFlg()
+{
+    IsStarting = true;
+}
 //----------------------------------
 //  ゲームステイタスによって画面を設定
 //----------------------------------
@@ -85,6 +105,7 @@ function SetGameStart(startTime, endTime)
     
     
     deleteAll("GameInfo");
+    MyId = 1;
     
     //新規登録
     var GameInfo = ncmb.DataStore("GameInfo");
@@ -93,10 +114,15 @@ function SetGameStart(startTime, endTime)
         .set("GameId", "1")
         .set("StartDate", startTime)
         .set("EndDate", endTime)
-        .set("BabaId", MyId)
+        .set("BabaId", "1")
              .save()
              .then(function(a){
-              // 保存後の処理
+                // 保存後の処理
+                $("#btnStart").css("display", "none");
+                $("#btnCamera").css("display", "none");
+                $("#btnStop").css("display", "block");
+                
+                CheckBaba();
              })
              .catch(function(err){
                // エラー処理
@@ -133,13 +159,13 @@ function CheckBaba()
                 var gInfo = results[0];
                 var babaId = gInfo.get("BabaId");
                 
-                if (babaId == myId) {
+                if (babaId == MyId) {
                     //自分がババになってた
-                    document.getElementById("btnSend").style.display = "none";
+                    document.getElementById("btnSend").style.display = "block";
                 }
                 else {
                     //他の人がババだった
-                    document.getElementById("btnSend").style.display = "block";
+                    document.getElementById("btnSend").style.display = "none";
                 }
             }
         });
@@ -162,17 +188,17 @@ function AppendMember(userName)
             if (memberCnt < 5) 
             {
                 //登録
-                var myId = Number(memberCnt) + 1;
-                IsParent = (myId == 1);
+                MyId = Number(memberCnt) + 1;
+                IsParent = (MyId == 1);
                 var member = new MemberList();
                 member
                     .set("GameId", "1")
-                    .set("UserId", myId)
+                    .set("UserId", MyId)
                     .set("UserName", userName)
                          .save()
                      .then(function(){
                         // 保存後の処理
-                        document.getElementById("txtName" + myId).value = userName;
+                        document.getElementById("txtName" + MyId).value = userName;
                         
                         $("#txtMyName").attr("readonly","true");
                         
@@ -203,7 +229,6 @@ function SetGameState()
 {
     try
     {
-        var a;
         var GameMaster = ncmb.DataStore("GameMaster");
         //データを検索
         GameMaster

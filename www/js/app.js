@@ -6,7 +6,7 @@ var clientKey = "2e064df09fd00b231247b798c19f78e1e17fec2393c3d9cc9b4f928c2daba99
 var senderId = "591757477595";
 
 // SDKの初期化
-var ncmb = new NCMB(applicationKey, clientKey);
+var ncmb = new NCMB(getAppKey(),getClientKey());
 var push = new ncmb.Push();
 
 // installationのobjectId
@@ -17,6 +17,7 @@ var keys = new Object();
 
 // プッシュ通知受信設定
 document.addEventListener("deviceready", function() {
+    alert("ready");
     // [NCMB] プッシュ通知受信時のコールバックを登録します
     window.NCMB.monaca.setHandler (function(jsonData){
         // 送信時に指定したJSONが引数として渡されます
@@ -24,6 +25,7 @@ document.addEventListener("deviceready", function() {
         alert("コールバック完了");
     });
 
+    alert("ready2");
     /* 端末登録成功時の処理 */
     var successCallback = function () {
         if (installation_objectId != null){

@@ -22,7 +22,9 @@ function takePicture(ncmb) {
         var byteCharacters = toBlob(data);
         ncmb.File.upload(fileName, byteCharacters)
         .then(function() {
-          savePicInfo();
+          savePicInfo("1013");
+          document.getElementById("btnCamera").style.display="none";
+          document.getElementById("btnStart").style.display="block";
         })
         .catch(function(error) {
           alert(JSON.stringify(error));
@@ -50,7 +52,7 @@ function takePicture(ncmb) {
             default:
               msg = 'Unknown Error';
               break;
-        };
+        }
     
       alert('Error: ' + msg);
     }
@@ -86,7 +88,7 @@ function takePicture(ncmb) {
     }
     
     // ファイル情報を保存
-    function savePicInfo(){
+    function savePicInfo(gameId){
         // 保存先クラスの作成
         var ncmbFileInfo = ncmb.DataStore("FileInfo");
 
@@ -95,7 +97,7 @@ function takePicture(ncmb) {
         
         // 値を設定と保存
         fileInfo
-            .set("GameId", "9999")
+            .set("GameId", gameId)
             .set("SrcUserId","aaa")
             .set("DstUserId","bbb")
             .set("FileName",fileName)
@@ -121,7 +123,7 @@ function takePicture(ncmb) {
             var dataUrl = reader.result;
             document.getElementById("image").src = dataUrl;
             document.getElementById("image").style.display = "block";
-            alert(reader.result);
+            // alert(reader.result);
         }
         
         // ダウンロード（データ形式をblobを指定）
