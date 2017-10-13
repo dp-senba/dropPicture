@@ -14,9 +14,10 @@ function takePicture(ncmb) {
     
     var fileName = result + ".png";
     
+    // 写真撮影
     navigator.camera.getPicture(onSuccess, onFail, setOptions());
     
-    // 
+    // 撮影成功時
     function onSuccess(data) {
         var byteCharacters = toBlob(data);
         ncmb.File.upload(fileName, byteCharacters)
@@ -28,6 +29,7 @@ function takePicture(ncmb) {
         });
     }
     
+    // 撮影失敗時
     function onFail(e){
         switch (e.code) {
             case FileError.QUOTA_EXCEEDED_ERR:
@@ -53,7 +55,7 @@ function takePicture(ncmb) {
       alert('Error: ' + msg);
     }
 
-    // Option
+    // CameraOption
     function setOptions(){
         var options = {
             quality : 50,
@@ -109,3 +111,76 @@ function takePicture(ncmb) {
             });
     }
 }
+
+    // ファイルダウンロード (main)
+    function getImage(ncmb, fileName){
+        
+        var reader = new FileReader();
+
+        reader.onload = function(e) {
+            var dataUrl = reader.result;
+            document.getElementById("image").src = dataUrl;
+            document.getElementById("image").style.display = "block";
+            alert(reader.result);
+        }
+        
+        // ダウンロード（データ形式をblobを指定）
+        ncmb.File.download(fileName, "blob")
+            .then(function(blob) {
+                // ファイルリーダーにデータを渡す
+                reader.readAsDataURL(blob);
+                // alert("DL_success!!\n fileName is "+fileName);
+            })
+            .catch(function(err) {
+                alert("DL_error");
+                console.log(err);
+           })
+    }
+    
+    // ファイルのダウンロード
+    function downloadImage(ncmb, gameId){
+        var fileName = "";
+        
+        var FileInfo = ncmb.DataStore("FileInfo");
+        
+        FileInfo.equalTo("GameId", gameId)
+            .fetchAll()
+            .then(function(results){
+                for (var i = 0; i < results.length; i++) {
+                    var object = results[i];
+                    fileName = object.get("FileName");
+                    getImage(ncmb, fileName);
+                }
+            })
+            .catch(function(err){
+                console.log(err);
+            });
+        
+        
+        return;
+    }
+
+// FileInfoの送信情報を更新する
+function sendPic(ncmb, gameId, srcId, dstId){
+    
+    var FileInfo = ncmb.DataStore("FileInfo");
+    
+    alert("gameId is " + gameId);
+    FileInfo.equalTo("GameId",gameId)
+        .fetchAll()
+        .then(function(results){
+            for(var i = 0; i < results.length; i++){
+                var obj = results[i];
+                obj.set("SrcUserId", srcId)
+                    .set("DstUserId", dstId);
+                return obj.update();
+            }
+        })
+        .catch(function(err){
+            console.log(err);
+        });
+}
+
+
+
+
