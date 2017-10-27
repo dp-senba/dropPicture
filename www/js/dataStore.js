@@ -13,19 +13,29 @@ function CheckStatus()
             if (results.length > 0) {
                 var gInfo = results[0];
                 //開始時刻のチェック
-                var eTime = moment(new Date('2017-10-10 ' + gInfo.get("EndDate"  )));
-                var diffSec = moment().diff(eTime, "seconds") * -1;
+                
+                var eTime;
+                var diffSec;
+                try{
+                eTime = moment(new Date(gInfo.get("EndDate")));
+                diffSec = moment().diff(eTime, "seconds") * -1;
+                
+                }catch(e){
+                    console.log(e);
+                }
                 
                 if (diffSec > 0) {
                     //現在ゲーム中
                     IsStarting = true;
                     
-                    StartTime = moment(new Date('2017-10-10 ' + gInfo.get("StartDate")));
-                    EndTime   = moment(new Date('2017-10-10 ' + gInfo.get("EndDate"  )));
+                    StartTime = moment(new Date(gInfo.get("StartDate")));
+                    EndTime   = moment(new Date(gInfo.get("EndDate")));
+                    
+                    document.getElementById("nowStatus").innerHTML = "ゲーム実行中★＾＾★";
                 }
                 else {
                     //過去のゲームなので、消す
-                    deleteAll("GameInfo");
+                    // deleteAll("GameInfo");
                 }
             }
             if (IsStarting == true) {
@@ -167,21 +177,24 @@ function UpdateBaba(babaId)
 //----------------------------------
 function CheckBaba()
 {
-    var GameInfo = ncmb.DataStore("GameInfo");
+    var GameInfo = ncmb.DataStore("FileInfo");
     GameInfo
         .fetchAll()
         .then(function(results){
             if (results.length > 0) {
                 var gInfo = results[0];
-                var babaId = gInfo.get("BabaId");
+                var babaId = gInfo.get("DstUserId");
                 
                 if (babaId == MyId) {
                     //自分がババになってた
                     document.getElementById("btnSend").style.display = "block";
+                    downloadImage(ncmb, "1");
                 }
                 else {
                     //他の人がババだった
                     document.getElementById("btnSend").style.display = "none";
+                    document.getElementById("image").src = "";
+                    document.getElementById("image").style.display = "none";
                 }
             }
         });
@@ -350,6 +363,7 @@ function ResetGameData()
     deleteAll("MemberList");
     
     //FileInfo
+    deleteAll("FileInfo");
     
     setTimeout("InitFormByGameState()", 500);
 }

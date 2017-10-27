@@ -41,6 +41,19 @@
     border:#8c9cad 1px solid;
 }
 
+.ui-radio {
+    display: inline-block;
+}
+
+div.ui-input-text {
+    display: inline-block;
+    margin-left: 40px;
+}
+
+input[type=radio]{
+    width: 20px;
+    height: 20px;
+}
 
   #info{
     background:#ffa;

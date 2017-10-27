@@ -22,7 +22,7 @@ function takePicture(ncmb) {
         var byteCharacters = toBlob(data);
         ncmb.File.upload(fileName, byteCharacters)
         .then(function() {
-          savePicInfo("1013");
+          savePicInfo("1");
           document.getElementById("btnCamera").style.display="none";
           document.getElementById("btnStart").style.display="block";
         })
@@ -62,7 +62,7 @@ function takePicture(ncmb) {
         var options = {
             quality : 50,
             destinationType: Camera.DestinationType.DATA_URL,
-            saveToPhotoAlbum:true
+            saveToPhotoAlbum:false
         };
         
         return options;
@@ -98,13 +98,13 @@ function takePicture(ncmb) {
         // 値を設定と保存
         fileInfo
             .set("GameId", gameId)
-            .set("SrcUserId","aaa")
-            .set("DstUserId","bbb")
+            .set("SrcUserId","1")
+            .set("DstUserId","1")
             .set("FileName",fileName)
             .save()
             .then(function(object){
                 // 保存に成功した場合の処理
-                alert("success");
+                // alert("success");
             })
             .catch(function(err){
                 // 保存に失敗した場合の処理
@@ -122,7 +122,7 @@ function takePicture(ncmb) {
         reader.onload = function(e) {
             var dataUrl = reader.result;
             document.getElementById("image").src = dataUrl;
-            document.getElementById("image").style.display = "block";
+            document.getElementById("image").style.display = "inline";
             // alert(reader.result);
         }
         
@@ -167,7 +167,6 @@ function sendPic(ncmb, gameId, srcId, dstId){
     
     var FileInfo = ncmb.DataStore("FileInfo");
     
-    alert("gameId is " + gameId);
     FileInfo.equalTo("GameId",gameId)
         .fetchAll()
         .then(function(results){
